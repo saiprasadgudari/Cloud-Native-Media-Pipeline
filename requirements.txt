@@ -1,0 +1,9 @@
+Django>=5.0
+djangorestframework
+celery
+redis
+boto3
+python-dotenv
+Pillow
+psycopg2-binary
+django-cors-headers
