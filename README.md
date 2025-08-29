@@ -29,15 +29,25 @@ A production-style backend for **media ingestion and processing**. Clients uploa
 
 ## 🏗️ Architecture
 
-flowchart LR
-  client[Client] -->|POST /api/uploads/presign| api[API (Django/DRF)]
-  client -->|PUT file via presigned URL| s3[(S3 / MinIO)]
-  api -->|POST /api/jobs/from-key| queue[(Redis)]
-  worker[Celery Worker] -->|pull job| queue
-  worker -->|FFmpeg / Pillow| s3
-  worker -->|status / progress| db[(PostgreSQL)]
-  api -->|GET /api/jobs/:id| client
 
+**File upload**
+- Client asks the API for a **presigned URL**.
+- Client uploads **directly to S3/MinIO** using that URL.  
+  _Large files never pass through the API; only metadata does._
+
+**Job creation**
+- API creates a **Job** and enqueues it in **Redis**.
+- Returns a **`job_id`** so the client can track progress.
+
+**Background processing**
+- **Celery workers** pull jobs from Redis.
+- Worker **downloads** the object, runs **FFmpeg** (video) or **Pillow** (images), and **writes outputs back** to S3/MinIO.
+- Worker updates the Job in **PostgreSQL** with status/progress and output keys.
+
+**Status & retrieval**
+- Client polls `GET /api/jobs/{id}`.
+- Status transitions: **`PENDING → STARTED → SUCCESS`** (or **`FAILURE`**).
+- The response includes **time-limited signed URLs** for each output (e.g., thumbnail JPG, 720p MP4, HLS playlist).
 
 
 ---
