@@ -29,15 +29,15 @@ A production-style backend for **media ingestion and processing**. Clients uploa
 
 ## 🏗️ Architecture
 
-```mermaid
 flowchart LR
-  client[Client] -->|POST /api/uploads/presign| api[API — Django/DRF]
-  client -->|PUT file via presigned URL| s3[(S3 or MinIO)]
+  client[Client] -->|POST /api/uploads/presign| api[API (Django/DRF)]
+  client -->|PUT file via presigned URL| s3[(S3 / MinIO)]
   api -->|POST /api/jobs/from-key| queue[(Redis)]
   worker[Celery Worker] -->|pull job| queue
   worker -->|FFmpeg / Pillow| s3
   worker -->|status / progress| db[(PostgreSQL)]
-  api -->|GET /api/jobs/{id}| client
+  api -->|GET /api/jobs/:id| client
+
 
 
 ---
