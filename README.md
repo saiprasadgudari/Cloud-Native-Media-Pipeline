@@ -2,7 +2,6 @@
 
 A production-style backend for **media ingestion and processing**. Clients upload directly to object storage via **presigned URLs**; background **Celery** workers run image/video transforms (thumbnail, watermark, MP4/HLS). The API exposes **job status** and **time-limited signed downloads**.
 
-> Built to demonstrate modern cloud patterns (direct-to-object-storage, async workers, idempotent steps, signed URLs) — runs locally **without Docker**.
 
 ---
 
